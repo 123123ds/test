@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    flex-wrap: wrap; /* 아이템이 넘칠 경우 다음 줄로 이동 */
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.item {
+    flex: 1 1 30%; /* 기본적으로 30% 너비를 가짐, 필요한 경우 줄어들 수 있음 */
+    margin: 10px;
+    background-color: lightblue;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box; /* 패딩을 포함하여 전체 너비 계산 */
+}
+
+/* 작은 화면에서 아이템의 너비를 100%로 설정 */
+@media (max-width: 600px) {
+    .item {
+        flex: 1 1 100%;
+    }
+}
