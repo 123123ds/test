@@ -70,7 +70,8 @@ function Mainpage() {
             onOk() {},
         });
     };
-
+    //
+    
     return (
         <div className="container">     
             <div className="item" onClick={handleIncrement}>아이템 1 (증가): {count}</div>
