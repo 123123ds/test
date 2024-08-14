@@ -11,10 +11,33 @@ import { Calendar, Modal } from 'antd';
 function Mainpage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [token, setToken] = useState(null); // JWT 토큰 상태 추가
 
     const handleLogin = (e) => {
         e.preventDefault();
         console.log('로그인 시도:', { email, password });
+
+        // 로그인 요청
+        fetch('http://localhost:5000/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('로그인 실패');
+            }
+            return response.json();
+        })
+        .then(data => {
+            setToken(data.token); // 서버에서 받은 JWT 저장
+            console.log('로그인 성공:', data);
+        })
+        .catch((error) => {
+            console.error('로그인 오류:', error);
+        });
     };
 
     const onPanelChange = (value, mode) => {
@@ -41,6 +64,7 @@ function Mainpage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // JWT를 Authorization 헤더에 추가
             },
             body: JSON.stringify({ message: '하이' }),
         })
@@ -70,8 +94,7 @@ function Mainpage() {
             onOk() {},
         });
     };
-    //
-    
+
     return (
         <div className="container">     
             <div className="item" onClick={handleIncrement}>아이템 1 (증가): {count}</div>
