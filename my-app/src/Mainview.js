@@ -12,6 +12,7 @@ const { Header, Sider, Content } = Layout; // Layout 컴포넌트의 하위 컴�
 function Mainview() {
     const [boxes, setBoxes] = useState([]); // 박스를 저장할 상태
     const [isMenu1Active, setIsMenu1Active] = useState(false); // 메뉴 1 활성화 상태
+    const [isMenu2Active, setIsMenu2Active] = useState(false); // 메뉴 2 활성화 상태
 
     const handleAddBoxes = () => {
         // 파란색 박스와 회색 박스 3개 추가
@@ -31,13 +32,18 @@ function Mainview() {
 
         setBoxes(newBoxes);
         setIsMenu1Active(true); // 메뉴 1이 활성화 되었음을 설정
+        setIsMenu2Active(false); // 메뉴 2 비활성화
+    };
+
+    const handleShowCircle = () => {
+        setIsMenu1Active(false); // 메뉴 1 비활성화
+        setIsMenu2Active(true); // 메뉴 2 활성화
     };
 
     return (
         <Layout style={{ minHeight: '100vh' }}> {/* 전체 높이를 설정 */}
             <Header style={{ background: '#fff', padding: 0 }}>
                 <div className="logo">My App</div>
-                {/* 여기서 로고나 제목을 추가할 수 있습니다. */}
                 <Menu theme="light" mode="horizontal" defaultSelectedKeys={['1']}>
                     <Menu.Item key="1">홈</Menu.Item>
                     <Menu.Item key="2">설정</Menu.Item>
@@ -48,7 +54,7 @@ function Mainview() {
                 <Sider width={200} style={{ background: '#fff' }}>
                     <Menu mode="inline" defaultSelectedKeys={['1']} style={{ height: '100%', borderRight: 0 }}>
                         <Menu.Item key="1" onClick={handleAddBoxes}>왼쪽 메뉴 1</Menu.Item>
-                        <Menu.Item key="2" onClick={() => setIsMenu1Active(false)}>왼쪽 메뉴 2</Menu.Item>
+                        <Menu.Item key="2" onClick={handleShowCircle}>왼쪽 메뉴 2</Menu.Item>
                         <Menu.Item key="3" onClick={() => setIsMenu1Active(false)}>왼쪽 메뉴 3</Menu.Item>
                     </Menu>
                 </Sider>
@@ -69,6 +75,18 @@ function Mainview() {
                         {isMenu1Active && (
                             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                                 {boxes}
+                            </div>
+                        )}
+                        
+                        {/* 메뉴 2가 활성화되면 동그라미 표시 */}
+                        {isMenu2Active && (
+                            <div style={{
+                                width: '200px',
+                                height: '200px',
+                                borderRadius: '50%',
+                                background: 'red',
+                                margin: '20px auto'
+                            }}>
                             </div>
                         )}
                     </Content>

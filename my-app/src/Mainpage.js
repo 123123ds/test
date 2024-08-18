@@ -82,7 +82,6 @@ function Mainpage() {
         });
     };
 
-    //
     const onDateClick = (date) => {
         const formattedDate = date.format('YYYY년 MM월 DD일'); // 날짜 포맷
         Modal.info({
