@@ -1,4 +1,4 @@
-import { Layout, Menu, Input, Button } from 'antd'; // Input과 Button 추가 임포트
+import { Layout, Menu, Input, Button } from 'antd';
 import 'antd/dist/antd.min.css';
 import React, { useState } from 'react'; 
 import { Provider } from 'react-redux';
@@ -14,15 +14,20 @@ function Mainview() {
     const [isMenu1Active, setIsMenu1Active] = useState(false);
     const [isMenu2Active, setIsMenu2Active] = useState(false);
     const [isBoardActive, setIsBoardActive] = useState(false);
-    
+
     // 게시판 상태 추가
-    const [posts, setPosts] = useState([]); // 게시글 목록
-    const [title, setTitle] = useState(''); // 게시글 제목
-    const [content, setContent] = useState(''); // 게시글 내용
+    const [posts, setPosts] = useState([]);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+
+    // 계산기 상태 추가
+    const [isCalculatorVisible, setIsCalculatorVisible] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+    const [result, setResult] = useState('');
 
     const handleAddBoxes = () => {
         const newBoxes = [
-            <div key="blueBox" className="box" style={{ background: 'blue', color: 'white', padding: '20px', margin: '10px' }}>
+            <div key="blueBox" className="box" style={{ background: 'blue', color: 'white', padding: '20px', margin: '10px' }} onClick={handleCalculatorToggle}>
                 파란색 박스
             </div>
         ];
@@ -41,6 +46,20 @@ function Mainview() {
         setIsBoardActive(false);
     };
 
+    const handleCalculatorToggle = () => {
+        setIsCalculatorVisible(!isCalculatorVisible);
+    };
+
+    const handleCalculate = () => {
+        try {
+            // 입력 값을 계산하여 결과를 설정
+            const evalResult = eval(inputValue); // eval을 사용할 때는 주의하세요.
+            setResult(evalResult);
+        } catch (error) {
+            setResult('계산 오류');
+        }
+    };
+
     const handleShowCircle = () => {
         setIsMenu1Active(false);
         setIsMenu2Active(true);
@@ -56,9 +75,7 @@ function Mainview() {
     const handlePostSubmit = () => {
         if (title && content) {
             const newPost = { title, content };
-            setPosts([...posts, newPost]); // 새 게시글 추가
-            
-            // 입력 필드 초기화
+            setPosts([...posts, newPost]);
             setTitle('');
             setContent('');
         }
@@ -136,6 +153,22 @@ function Mainview() {
                                             <p>{post.content}</p>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {isCalculatorVisible && (
+                            <div style={{ marginTop: '20px' }}>
+                                <h3>계산기</h3>
+                                <Input
+                                    placeholder="수식 입력 (예: 2+2)"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    style={{ marginBottom: '10px' }}
+                                />
+                                <Button type="primary" onClick={handleCalculate}>계산하기</Button>
+                                <div style={{ marginTop: '10px' }}>
+                                    <strong>결과: {result}</strong>
                                 </div>
                             </div>
                         )}
