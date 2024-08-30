@@ -1,11 +1,7 @@
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Input, Button } from 'antd';
 import 'antd/dist/antd.min.css';
-import React, { useState } from 'react'; 
-import { Provider } from 'react-redux';
-import store from './store';
 import './Mainview.css';
-import { useSelector, useDispatch } from 'react-redux';
-import { increment, decrement, reset } from './actions';
 
 const { Header, Sider, Content } = Layout;
 
@@ -25,6 +21,11 @@ function Mainview() {
     const [inputValue, setInputValue] = useState('');
     const [result, setResult] = useState('');
 
+    // 빨간 동그라미 색상 상태 추가
+    const [circleColor, setCircleColor] = useState('red');
+    const [intervalId, setIntervalId] = useState(null);
+
+    //
     const handleAddBoxes = () => {
         const newBoxes = [
             <div key="blueBox" className="box" style={{ background: 'blue', color: 'white', padding: '20px', margin: '10px' }} onClick={handleCalculatorToggle}>
@@ -53,7 +54,6 @@ function Mainview() {
 
     const handleCalculate = () => {
         try {
-            // 입력 값을 계산하여 결과를 설정
             const evalResult = eval(inputValue); // eval을 사용할 때는 주의하세요.
             setResult(evalResult);
         } catch (error) {
@@ -82,101 +82,134 @@ function Mainview() {
         }
     };
 
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
+
+    const handleCircleClick = () => {
+        if (intervalId) {
+            clearInterval(intervalId); // 기존의 interval이 있다면 정리
+        }
+
+        const id = setInterval(() => {
+            setCircleColor(getRandomColor());
+        }, 5000);
+        
+        setIntervalId(id);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 정리
+            }
+        };
+    }, [intervalId]);
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
-        <Header style={{ background: '#fff', padding: 0 }}>
-            <div className="logo">My App</div>
-            <Menu theme="light" mode="horizontal" defaultSelectedKeys={['1']}>
-                <Menu.Item key="1">홈</Menu.Item>
-                <Menu.Item key="2">설정</Menu.Item>
-                <Menu.Item key="3">정보</Menu.Item>
-            </Menu>
-        </Header>
-        <Layout>
-            <Sider width={200} style={{ background: '#fff' }}>
-                <Menu mode="inline" defaultSelectedKeys={['1']} style={{ height: '100%', borderRight: 0 }}>
-                    <Menu.Item key="1" onClick={handleAddBoxes}>왼쪽 메뉴 1</Menu.Item>
-                    <Menu.Item key="2" onClick={handleShowCircle}>왼쪽 메뉴 2</Menu.Item>
-                    <Menu.Item key="3" onClick={handleShowBoard}>왼쪽 메뉴 3</Menu.Item>
+            <Header style={{ background: '#fff', padding: 0 }}>
+                <div className="logo">My App</div>
+                <Menu theme="light" mode="horizontal" defaultSelectedKeys={['1']}>
+                    <Menu.Item key="1">홈</Menu.Item>
+                    <Menu.Item key="2">설정</Menu.Item>
+                    <Menu.Item key="3">정보</Menu.Item>
                 </Menu>
-            </Sider>
-            <Layout style={{ padding: '0 24px 24px' }}>
-                <Content
-                    style={{
-                        padding: 24,
-                        margin: 0,
-                        minHeight: 280,
-                        background: '#fff',
-                    }}
-                >
-                    <h2>메인 콘텐츠</h2>
-                    <p>여기에 메인 콘텐츠를 추가하세요.</p>
-                    
-                    {isMenu1Active && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            {boxes}
-                        </div>
-                    )}
-                    
-                    {isMenu2Active && (
-                        <div style={{
-                            width: '200px',
-                            height: '200px',
-                            borderRadius: '50%',
-                            background: 'red',
-                            margin: '20px auto'
-                        }}>
-                        </div>
-                    )}
+            </Header>
+            <Layout>
+                <Sider width={200} style={{ background: '#fff' }}>
+                    <Menu mode="inline" defaultSelectedKeys={['1']} style={{ height: '100%', borderRight: 0 }}>
+                        <Menu.Item key="1" onClick={handleAddBoxes}>왼쪽 메뉴 1</Menu.Item>
+                        <Menu.Item key="2" onClick={handleShowCircle}>왼쪽 메뉴 2</Menu.Item>
+                        <Menu.Item key="3" onClick={handleShowBoard}>왼쪽 메뉴 3</Menu.Item>
+                    </Menu>
+                </Sider>
+                <Layout style={{ padding: '0 24px 24px' }}>
+                    <Content
+                        style={{
+                            padding: 24,
+                            margin: 0,
+                            minHeight: 280,
+                            background: '#fff',
+                        }}
+                    >
+                        <h2>메인 콘텐츠</h2>
+                        <p>여기에 메인 콘텐츠를 추가하세요.</p>
 
-                    {isBoardActive && (
-                        <div>
-                            <h3>게시판</h3>
+                        {isMenu1Active && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                {boxes}
+                            </div>
+                        )}
+
+                        {isMenu2Active && (
+                            <div
+                                style={{
+                                    width: '200px',
+                                    height: '200px',
+                                    borderRadius: '50%',
+                                    background: circleColor,
+                                    margin: '20px auto',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={handleCircleClick} // 클릭 이벤트 추가
+                            >
+                            </div>
+                        )}
+
+                        {isBoardActive && (
                             <div>
-                                <Input
-                                    placeholder="제목"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    style={{ marginBottom: '10px' }}
-                                />
-                                <Input.TextArea
-                                    placeholder="내용"
-                                    value={content}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    style={{ marginBottom: '10px' }}
-                                />
-                                <Button type="primary" onClick={handlePostSubmit}>게시글 작성</Button>
+                                <h3>게시판</h3>
+                                <div>
+                                    <Input
+                                        placeholder="제목"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        style={{ marginBottom: '10px' }}
+                                    />
+                                    <Input.TextArea
+                                        placeholder="내용"
+                                        value={content}
+                                        onChange={(e) => setContent(e.target.value)}
+                                        style={{ marginBottom: '10px' }}
+                                    />
+                                    <Button type="primary" onClick={handlePostSubmit}>게시글 작성</Button>
+                                </div>
+                                <div style={{ marginTop: '20px' }}>
+                                    {posts.map((post, index) => (
+                                        <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                                            <h4>{post.title}</h4>
+                                            <p>{post.content}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <div style={{ marginTop: '20px' }}>
-                                {posts.map((post, index) => (
-                                    <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-                                        <h4>{post.title}</h4>
-                                        <p>{post.content}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                        )}
 
-                    {isMenu1Active && isCalculatorVisible && ( // 조건 수정
-                        <div style={{ marginTop: '20px' }}>
-                            <h3>계산기</h3>
-                            <Input
-                                placeholder="수식 입력 (예: 2+2)"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                style={{ marginBottom: '10px' }}
-                            />
-                            <Button type="primary" onClick={handleCalculate}>계산하기</Button>
-                            <div style={{ marginTop: '10px' }}>
-                                <strong>결과: {result}</strong>
+                        {isMenu1Active && isCalculatorVisible && ( // 조건 수정
+                            <div style={{ marginTop: '20px' }}>
+                                <h3>계산기</h3>
+                                <Input
+                                    placeholder="수식 입력 (예: 2+2)"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    style={{ marginBottom: '10px' }}
+                                />
+                                <Button type="primary" onClick={handleCalculate}>계산하기</Button>
+                                <div style={{ marginTop: '10px' }}>
+                                    <strong>결과: {result}</strong>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </Content>
+                        )}
+                    </Content>
+                </Layout>
             </Layout>
         </Layout>
-    </Layout>
     );
 }
 
