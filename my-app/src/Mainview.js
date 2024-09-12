@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Input, Button } from 'antd';
+import { Layout, Menu, Input, Button, Modal } from 'antd';
 import 'antd/dist/antd.min.css';
 import './Mainview.css';
 
@@ -11,21 +11,19 @@ function Mainview() {
     const [isMenu2Active, setIsMenu2Active] = useState(false);
     const [isBoardActive, setIsBoardActive] = useState(false);
 
-    // 게시판 상태 추가
     const [posts, setPosts] = useState([]);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [editingPostIndex, setEditingPostIndex] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
-    // 계산기 상태 추가
     const [isCalculatorVisible, setIsCalculatorVisible] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [result, setResult] = useState('');
 
-    // 빨간 동그라미 색상 상태 추가
     const [circleColor, setCircleColor] = useState('red');
     const [intervalId, setIntervalId] = useState(null);
 
-    //
     const handleAddBoxes = () => {
         const newBoxes = [
             <div key="blueBox" className="box" style={{ background: 'blue', color: 'white', padding: '20px', margin: '10px' }} onClick={handleCalculatorToggle}>
@@ -45,7 +43,7 @@ function Mainview() {
         setIsMenu1Active(true);
         setIsMenu2Active(false);
         setIsBoardActive(false);
-        setIsCalculatorVisible(true); // 계산기 보이기
+        setIsCalculatorVisible(true);
     };
 
     const handleCalculatorToggle = () => {
@@ -54,7 +52,7 @@ function Mainview() {
 
     const handleCalculate = () => {
         try {
-            const evalResult = eval(inputValue); // eval을 사용할 때는 주의하세요.
+            const evalResult = eval(inputValue);
             setResult(evalResult);
         } catch (error) {
             setResult('계산 오류');
@@ -82,6 +80,30 @@ function Mainview() {
         }
     };
 
+    const handleEditPost = (index) => {
+        setEditingPostIndex(index);
+        setTitle(posts[index].title);
+        setContent(posts[index].content);
+        setIsModalVisible(true);
+    };
+
+    const handleModalOk = () => {
+        const updatedPosts = [...posts];
+        updatedPosts[editingPostIndex] = { title, content };
+        setPosts(updatedPosts);
+        setIsModalVisible(false);
+        setTitle('');
+        setContent('');
+        setEditingPostIndex(null);
+    };
+
+    const handleModalCancel = () => {
+        setIsModalVisible(false);
+        setTitle('');
+        setContent('');
+        setEditingPostIndex(null);
+    };
+
     const getRandomColor = () => {
         const letters = '0123456789ABCDEF';
         let color = '#';
@@ -93,7 +115,7 @@ function Mainview() {
 
     const handleCircleClick = () => {
         if (intervalId) {
-            clearInterval(intervalId); // 기존의 interval이 있다면 정리
+            clearInterval(intervalId);
         }
 
         const id = setInterval(() => {
@@ -106,7 +128,7 @@ function Mainview() {
     useEffect(() => {
         return () => {
             if (intervalId) {
-                clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 정리
+                clearInterval(intervalId);
             }
         };
     }, [intervalId]);
@@ -157,7 +179,7 @@ function Mainview() {
                                     margin: '20px auto',
                                     cursor: 'pointer'
                                 }}
-                                onClick={handleCircleClick} // 클릭 이벤트 추가
+                                onClick={handleCircleClick}
                             >
                             </div>
                         )}
@@ -182,7 +204,7 @@ function Mainview() {
                                 </div>
                                 <div style={{ marginTop: '20px' }}>
                                     {posts.map((post, index) => (
-                                        <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                                        <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }} onClick={() => handleEditPost(index)}>
                                             <h4>{post.title}</h4>
                                             <p>{post.content}</p>
                                         </div>
@@ -191,7 +213,7 @@ function Mainview() {
                             </div>
                         )}
 
-                        {isMenu1Active && isCalculatorVisible && ( // 조건 수정
+                        {isMenu1Active && isCalculatorVisible && (
                             <div style={{ marginTop: '20px' }}>
                                 <h3>계산기</h3>
                                 <Input
@@ -206,6 +228,25 @@ function Mainview() {
                                 </div>
                             </div>
                         )}
+
+                        <Modal
+                            title="게시글 수정"
+                            visible={isModalVisible}
+                            onOk={handleModalOk}
+                            onCancel={handleModalCancel}
+                        >
+                            <Input
+                                placeholder="제목"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                style={{ marginBottom: '10px' }}
+                            />
+                            <Input.TextArea
+                                placeholder="내용"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                            />
+                        </Modal>
                     </Content>
                 </Layout>
             </Layout>
