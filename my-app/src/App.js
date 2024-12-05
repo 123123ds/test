@@ -2,6 +2,7 @@ import './App.css';
 import React from 'react';
 import Mainpage from './Mainpage';
 import Mainview from './Mainview';
+import MainSubPage from './MainSubPage';
 import { Route, Routes, Link } from 'react-router-dom';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Mainpage />} />
         <Route path="/Mainview" element={<Mainview />} />
+        <Route path="/MainSubPage" element={<MainSubPage />} />
       </Routes>
     </>
   );
